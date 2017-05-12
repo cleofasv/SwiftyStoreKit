@@ -28,7 +28,7 @@ import Foundation
 class InAppProductPurchaseRequest: NSObject, SKPaymentTransactionObserver {
 
     enum TransactionResult {
-        case Purchased(productId: String)
+        case Purchased(productId: String, quantity: Int)
         case Restored(productId: String)
         case Failed(error: NSError)
     }
@@ -113,7 +113,7 @@ class InAppProductPurchaseRequest: NSObject, SKPaymentTransactionObserver {
             switch transactionState {
             case .Purchased:
                 if isPurchaseRequest {
-                    transactionResults.append(.Purchased(productId: transactionProductIdentifier))
+                    transactionResults.append(.Purchased(productId: transactionProductIdentifier, quantity: transaction.payment.quantity))
                     paymentQueue.finishTransaction(transaction)
                 }
             case .Failed:
