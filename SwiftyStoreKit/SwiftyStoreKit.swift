@@ -69,7 +69,7 @@ public class SwiftyStoreKit {
         case PaymentNotAllowed
     }
     public enum PurchaseResult {
-        case Success(productId: String)
+        case Success(productId: String, quantity: Int)
         case Error(error: PurchaseError)
     }
     public struct RestoreResults {
@@ -250,8 +250,8 @@ public class SwiftyStoreKit {
 
     private func processPurchaseResult(result: InAppProductPurchaseRequest.TransactionResult) -> PurchaseResult {
         switch result {
-        case .Purchased(let productId):
-            return .Success(productId: productId)
+        case .Purchased(let productId, let quantity):
+            return .Success(productId: productId, quantity: quantity)
         case .Failed(let error):
             return .Error(error: .Failed(error: error))
         case .Restored(let productId):
@@ -264,7 +264,7 @@ public class SwiftyStoreKit {
         var restoreFailedProducts: [(ErrorType, String?)] = []
         for result in results {
             switch result {
-            case .Purchased(let productId):
+            case .Purchased(let productId, let quantity):
                 restoreFailedProducts.append((storeInternalError(code: InternalErrorCode.PurchasedWhenRestoringPurchase.rawValue, description: "Cannot purchase product \(productId) from restore purchases path"), productId))
             case .Failed(let error):
                 restoreFailedProducts.append((error, nil))
