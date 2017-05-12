@@ -122,15 +122,15 @@ public class SwiftyStoreKit {
      *  - Parameter applicationUsername: an opaque identifier for the user’s account on your system
      *  - Parameter completion: handler for result
      */
-    public class func purchaseProduct(productId: String, applicationUsername: String = "", completion: (result: PurchaseResult) -> ()) {
+    public class func purchaseProduct(productId: String, quantity: Int, applicationUsername: String = "", completion: (result: PurchaseResult) -> ()) {
         
         if let product = sharedInstance.store.products[productId] {
-            sharedInstance.purchase(product: product, applicationUsername: applicationUsername, completion: completion)
+            sharedInstance.purchase(product: product, quantity: quantity, applicationUsername: applicationUsername, completion: completion)
         }
         else {
             retrieveProductsInfo(Set([productId])) { result -> () in
                 if let product = result.retrievedProducts.first {
-                    sharedInstance.purchase(product: product, applicationUsername: applicationUsername, completion: completion)
+                    sharedInstance.purchase(product: product, quantity: quantity, applicationUsername: applicationUsername, completion: completion)
                 }
                 else if let error = result.error {
                     completion(result: .Error(error: .Failed(error: error)))
@@ -227,7 +227,7 @@ public class SwiftyStoreKit {
     #endif
 
     // MARK: private methods
-    private func purchase(product product: SKProduct, applicationUsername: String = "", completion: (result: PurchaseResult) -> ()) {
+    private func purchase(product product: SKProduct, quantity: Int, applicationUsername: String = "", completion: (result: PurchaseResult) -> ()) {
         guard SwiftyStoreKit.canMakePayments else {
             completion(result: .Error(error: .PaymentNotAllowed))
             return
@@ -237,7 +237,7 @@ public class SwiftyStoreKit {
             return
         }
 
-        inflightPurchases[productIdentifier] = InAppProductPurchaseRequest.startPayment(product, applicationUsername: applicationUsername) { results in
+        inflightPurchases[productIdentifier] = InAppProductPurchaseRequest.startPayment(product, quantity: quantity, applicationUsername: applicationUsername) { results in
 
             self.inflightPurchases[productIdentifier] = nil
             
